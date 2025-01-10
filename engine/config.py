@@ -23,7 +23,7 @@ BUILD_TIMEOUT = float(os.environ.get('BUILD_TIMEOUT', '60'))
 CONNECT_TIMEOUT = float(os.environ.get('CONNECT_TIMEOUT', '10'))
 
 NUM_ROUNDS = int(os.environ.get('NUM_ROUNDS', '1000'))
-STARTING_STACK = int(os.environ.get('STARTING_STACK', '400'))
+STARTING_STACK = int(os.environ.get('STARTING_STACK', '100'))
 BIG_BLIND = int(os.environ.get('BIG_BLIND', '2'))
 SMALL_BLIND = int(os.environ.get('SMALL_BLIND', '1'))
 

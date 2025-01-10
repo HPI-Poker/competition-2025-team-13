@@ -9,7 +9,7 @@ TerminalState = namedtuple('TerminalState', ['deltas', 'previous_state'])
 
 # KEEP THEM IN SYNC WITH YOUR .env OF YOUR ENGINE!
 NUM_ROUNDS = 1000
-STARTING_STACK = 400
+STARTING_STACK = 100
 BIG_BLIND = 2
 SMALL_BLIND = 1
 
