@@ -50,7 +50,7 @@ struct Bot {
         auto legalActions = roundState->legalActions();
         if (roundState->stacks[1 - active] > 0) {
             if (isFinalStreet(roundState->deck))
-                return Action{Action::Type::RAISE, 1};
+                return Action{Action::Type::RAISE, 2};
             return checkCall(legalActions);
         }
         int rounds_wo_all_in;
