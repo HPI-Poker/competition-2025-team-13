@@ -49,7 +49,8 @@ struct Bot {
         if (roundState->stacks[active] == 0) return Action{Action::Type::CHECK};
         auto legalActions = roundState->legalActions();
         if (roundState->stacks[1 - active] > 0) {
-            if (isFinalStreet(roundState->deck))
+            auto [minRaise, maxRaise] = roundState->raiseBounds();
+            if (isFinalStreet(roundState->deck) && minRaise <= 2 && 2 <= maxRaise)
                 return Action{Action::Type::RAISE, 2};
             return checkCall(legalActions);
         }
