@@ -166,7 +166,7 @@ double callEv(int rounds_wo_all_in, array<uint8_t,2> hand, vector<uint8_t> board
     double prob_good = (lg * ssize(op_hands[1])) / (lg * ssize(op_hands[1]) + lb * ssize(op_hands[0]));
 
     array<double,2> equities{};
-    const double err = 5e-3; const int min_iters = 100;
+    const double err = 1e-3; const int min_iters = 100;
     for (int i : {0, 1}) equities[i] = monte_carlo(hand, op_hands[i], board_mask, empty(board) ? 0 : board.back(), err, min_iters, duration / 2, NAN);
     assert(0 <= prob_good && prob_good <= 1);
     assert(0 <= equities[0] && equities[0] <= 1);

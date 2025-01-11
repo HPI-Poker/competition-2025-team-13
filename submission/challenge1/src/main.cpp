@@ -53,8 +53,13 @@ struct Bot {
                 return Action{Action::Type::RAISE, 1};
             return checkCall(legalActions);
         }
-        int rounds_wo_all_in = active - 1;
-        if (roundState->street >= 3) rounds_wo_all_in += roundState->street - 2;
+        int rounds_wo_all_in;
+        if (roundState->street >= 3) {
+            rounds_wo_all_in = (1 - active) - 1;
+            rounds_wo_all_in += roundState->street - 2;
+        } else {
+            rounds_wo_all_in = active - 1;
+        }
 
         int rounds_left = NUM_ROUNDS - gameState->roundNum;
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
@@ -63,7 +68,8 @@ struct Bot {
         double cEv = callEv(rounds_wo_all_in, roundState->hands[active], roundState->deck, duration);
         assert(cEv <= 100);
         ev += max(cEv, foldEv);
-        if (cEv > foldEv)
+        const double risk = 0;
+        if (cEv - foldEv > risk)
             return Action{Action::Type::CALL};
         return Action{Action::Type::FOLD};
     }
