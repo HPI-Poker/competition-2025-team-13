@@ -41,7 +41,7 @@ struct Bot {
         auto rounds_left = NUM_ROUNDS - gameState->roundNum;
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
 
-        double eq = equity(roundState->hands[active], roundState->deck, 1/2.0*duration);
+        double eq = equity(roundState->hands[active], roundState->deck, 1/1.8*duration);
         if (roundState->street == 0 && eq > 0.45 && pip(active) == 1) {
             int raise = clamp(5 - pip(active), minRaise, maxRaise);
             return Action{Action::Type::RAISE, raise};
