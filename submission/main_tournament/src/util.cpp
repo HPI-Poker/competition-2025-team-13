@@ -156,7 +156,7 @@ double equity(array<uint8_t,2> hand, vector<uint8_t> board, auto duration) {
         return preflop[hand_rep(hand)];
 
     vector<array<uint8_t,2>> opponent = hands_except(dead);
-    double err = 1e-3; int min_iters = 100;
+    double err = 2e-3; int min_iters = 100;
     return monte_carlo(hand, opponent, board_mask, empty(board) ? 0 : board.back(), err, min_iters, duration);
 }
 double equity(array<string,2> hand_string, vector<string> board_string, auto duration) {

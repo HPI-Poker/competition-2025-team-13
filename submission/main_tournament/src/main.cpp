@@ -40,38 +40,44 @@ struct Bot {
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
 
 #define pip(player) (100-roundState->stacks[player])
-        double foldEv = -pip(active);
-        double eq = equity(roundState->hands[active], roundState->deck, 3.0/4*duration);
+        double eq = equity(roundState->hands[active], roundState->deck, 1/2.0*duration);
         auto [minRaise, maxRaise] = roundState->raiseBounds();
-        if (roundState->street == 0 && eq > 0.45) {
-            if (pip(active) < 5) {
-                int raise = clamp(5 - pip(active), minRaise, maxRaise);
+        if (roundState->street == 0 && eq > 0.45 && pip(active) == 1) {
+            int raise = clamp(5 - pip(active), minRaise, maxRaise);
+            return Action{Action::Type::RAISE, raise};
+        }
+
+        if (legalActions.contains(Action::Type::CHECK)) {
+            // Check or Raise
+            if (eq >= 0.55) { // TWIDDLE
+                double wishraise = 1.67 * pip(active);
+                if (eq >= 0.6) wishraise = 2 * pip(active);
+                if (eq >= 0.7) wishraise = 3 * pip(active);
+                int raise = clamp((int) llround(wishraise), minRaise, maxRaise);
                 return Action{Action::Type::RAISE, raise};
             }
-        }
-        int opip = pip(1 - active);
-        if (roundState->street == 3) opip *= 3, opip /= 2;
-        if (roundState->street >= 3) opip *= 2;
-        opip = min(opip, 100);
-        eq -= 0.03;
-        double callEv = eq * opip - (1 - eq) * opip;
-        if (callEv - foldEv > 5 && roundState->street > 0) {
-            double threshold = 1.0;
-            if (roundState->street == 3) threshold = 0.7;
-            if (roundState->street == 4) threshold = 0.65;
-            if (roundState->street >= 5) threshold = 0.6;
-            int want = pow(max(0.0, (eq - threshold) / (1-threshold)), 2)*min(100, 2*pip(1 - active)); // Don't look for meaning, there is none.
-            if (legalActions.contains(Action::Type::RAISE) && pip(1 - active) < want && pip(active) + minRaise <= want) {
-                int raise = clamp(want - pip(active), minRaise, maxRaise);
-                for (auto card : roundState->deck) cerr << card << "";
-                cerr << ": " << roundState->hands[active][0] << roundState->hands[active][1] << " " << pip(active) << " -> " << pip(active) + raise << endl;
-                return Action{Action::Type::RAISE, raise};
+            return Action{Action::Type::CHECK};
+        } else {
+            // Call or Fold, let's not reraise.
+            int expected_pot_value = pip(1 - active);
+            if (roundState->street <= 4) expected_pot_value *= 2;
+            if (roundState->street <= 3) expected_pot_value *= 2;
+            if (roundState->street <= 0) expected_pot_value *= 2;
+            expected_pot_value = min(expected_pot_value, 100);
+            int to_call = expected_pot_value - pip(active);
+            if (2 * expected_pot_value * (eq - 0.03) >= to_call && eq > 0.5) {
+                //debug hand, board cards, that we called and what we called
+                cerr << "Hand: " << roundState->hands[active][0] << roundState->hands[active][1] << endl;
+                cerr << "Board: ";
+                for (auto card : roundState->deck) cerr << card;
+                cerr << endl;
+                cerr << "Expected pot value: " << expected_pot_value << " pip " << pip(1 - active) << endl;
+                cerr << "Equity: " << eq << endl;
+
+                return Action{Action::Type::CALL};
             }
-            return checkCall(legalActions);
+            return Action{Action::Type::FOLD};
         }
-        if (legalActions.contains(Action::Type::CHECK)) return Action{Action::Type::CHECK};
-        cerr << pip(active) << " " << pip(1-active) << " folded" << endl;
-        return Action{Action::Type::FOLD};
     }
 };
 

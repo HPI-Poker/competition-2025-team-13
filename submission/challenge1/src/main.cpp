@@ -65,7 +65,7 @@ struct Bot {
         int rounds_left = NUM_ROUNDS - gameState->roundNum;
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
 
-        double foldEv = -roundState->pips[active];
+        double foldEv = -(100-roundState->stacks[active]);
         double cEv = callEv(rounds_wo_all_in, roundState->hands[active], roundState->deck, duration);
         assert(cEv <= 100);
         ev += max(cEv, foldEv);
