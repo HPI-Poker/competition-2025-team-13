@@ -65,7 +65,8 @@ struct Bot {
             if (roundState->street <= 0) expected_pot_value *= 2;
             expected_pot_value = min(expected_pot_value, 100);
             int to_call = expected_pot_value - pip(active);
-            if (2 * expected_pot_value * (eq - 0.03) >= to_call && eq > 0.5) {
+            double eqp = eq - 0.001 * (pip(1 - active) - pip(active));
+            if (2 * expected_pot_value * eqp >= to_call && eqp >= 0.5) {
                 //debug hand, board cards, that we called and what we called
                 cerr << "Hand: " << roundState->hands[active][0] << roundState->hands[active][1] << endl;
                 cerr << "Board: ";
