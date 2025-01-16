@@ -14,14 +14,12 @@ struct Bot {
         cerr << gameState->roundNum << ": " << gameState->bankroll << " " << gameState->gameClock << endl;
     }
     void handleNewRound(const GameInfoPtr&, const RoundStatePtr&, int) {}
+#define pip(player) (100-roundState->stacks[player])
     bool canWinByFolding(const GameInfoPtr& gameState, const RoundStatePtr& roundState, int active) {
-        bool is_big_blind = active;
-        auto rounds_left = NUM_ROUNDS - gameState->roundNum;
-        auto loss = rounds_left / 2 * SMALL_BLIND + rounds_left / 2 * BIG_BLIND;
-        if (is_big_blind) loss += SMALL_BLIND;
-        else loss += BIG_BLIND;
-        loss += roundState->pips[active];
-        return gameState->bankroll - loss > 0;
+        auto rounds_left = NUM_ROUNDS - gameState->roundNum + 1;
+        auto loss = rounds_left / 2 * 3;
+        if (rounds_left % 2 == 1) loss += pip(active);
+        return gameState->bankroll - loss > 4;
     }
 
 
@@ -32,14 +30,13 @@ struct Bot {
     Action getAction(const GameInfoPtr& gameState, const RoundStatePtr& roundState, int active) {
         if (roundState->stacks[active] == 0) return Action{Action::Type::CHECK};
         if (canWinByFolding(gameState, roundState, active)) {
-            cerr << "I can win by folding" << endl;
+            // cerr << "I can win by folding. Nananana" << endl;
             return Action{Action::Type::FOLD};
         }
         auto legalActions = roundState->legalActions();
         auto rounds_left = NUM_ROUNDS - gameState->roundNum;
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
 
-#define pip(player) (100-roundState->stacks[player])
         double eq = equity(roundState->hands[active], roundState->deck, 1/2.0*duration);
         auto [minRaise, maxRaise] = roundState->raiseBounds();
         if (roundState->street == 0 && eq > 0.45 && pip(active) == 1) {
@@ -67,13 +64,14 @@ struct Bot {
             int to_call = expected_pot_value - pip(active);
             double eqp = eq - 0.001 * (pip(1 - active) - pip(active));
             if (2 * expected_pot_value * eqp >= to_call && eqp >= 0.5) {
-                //debug hand, board cards, that we called and what we called
+                /*
                 cerr << "Hand: " << roundState->hands[active][0] << roundState->hands[active][1] << endl;
                 cerr << "Board: ";
                 for (auto card : roundState->deck) cerr << card;
                 cerr << endl;
                 cerr << "Expected pot value: " << expected_pot_value << " pip " << pip(1 - active) << endl;
                 cerr << "Equity: " << eq << endl;
+                 */
 
                 return Action{Action::Type::CALL};
             }
