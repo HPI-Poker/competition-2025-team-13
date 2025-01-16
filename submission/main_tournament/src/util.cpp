@@ -13,7 +13,7 @@
 
 using namespace omp;
 using namespace std;
-#include "gah.h"
+#include "preflop.h"
 
 const uint8_t JACK = 9;
 const uint8_t QUEEN = 10;
@@ -140,10 +140,21 @@ vector<array<uint8_t,2>> hands_except(const vector<uint8_t> &forbidden_cards) {
     return result;
 }
 
+array<uint8_t,2> hand_rep(array<uint8_t,2> hand) {
+    if (hand[0] < hand[1]) swap(hand[0], hand[1]);
+    return {
+            static_cast<uint8_t>(hand[0] & RANK_MASK),
+            static_cast<uint8_t>((hand[1] & RANK_MASK) | ((hand[0] & SUIT_MASK) != (hand[1] & SUIT_MASK)))
+    };
+}
+
 double equity(array<uint8_t,2> hand, vector<uint8_t> board, auto duration) {
     vector<uint8_t> dead{board}; dead.insert(end(dead), begin(hand), end(hand));
     uint64_t board_mask = 0;
     for (auto x : board) board_mask |= 1ull << x;
+    if (!board_mask)
+        return preflop[hand_rep(hand)];
+
     vector<array<uint8_t,2>> opponent = hands_except(dead);
     double err = 1e-3; int min_iters = 100;
     return monte_carlo(hand, opponent, board_mask, empty(board) ? 0 : board.back(), err, min_iters, duration);
@@ -156,14 +167,7 @@ double equity(array<string,2> hand_string, vector<string> board_string, auto dur
     return equity(hand, board, duration);
 }
 
-array<uint8_t,2> hand_rep(array<uint8_t,2> hand) {
-    if (hand[0] < hand[1]) swap(hand[0], hand[1]);
-    return {
-            static_cast<uint8_t>(hand[0] & RANK_MASK),
-            static_cast<uint8_t>((hand[1] & RANK_MASK) | ((hand[0] & SUIT_MASK) != (hand[1] & SUIT_MASK)))
-    };
-}
-
+/*
 int main() {
     cout << setprecision(4) << fixed;
     cout << "map<array<uint8_t,2>,double> preflop{";
@@ -179,3 +183,4 @@ int main() {
     }
     cout << "};";
 }
+ */

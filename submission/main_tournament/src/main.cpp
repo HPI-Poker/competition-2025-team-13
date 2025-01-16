@@ -31,7 +31,10 @@ struct Bot {
 
     Action getAction(const GameInfoPtr& gameState, const RoundStatePtr& roundState, int active) {
         if (roundState->stacks[active] == 0) return Action{Action::Type::CHECK};
-        if (canWinByFolding(gameState, roundState, active)) return Action{Action::Type::FOLD};
+        if (canWinByFolding(gameState, roundState, active)) {
+            cerr << "I can win by folding" << endl;
+            return Action{Action::Type::FOLD};
+        }
         auto legalActions = roundState->legalActions();
         auto rounds_left = NUM_ROUNDS - gameState->roundNum;
         auto duration = chrono::nanoseconds((long long)(1e9 * (gameState->gameClock-1) / rounds_left));
@@ -40,7 +43,7 @@ struct Bot {
         double eq = equity(roundState->hands[active], roundState->deck, duration);
         double callEv = eq * roundState->pips[1 - active] - (1 - eq) * roundState->pips[1 - active];
         // This is dumb.
-        if (callEv - foldEv > 30) {
+        if (callEv - foldEv > 0.15*roundState->pips[1 - active]) {
             double minRaiseEq = 0.9;
             if (legalActions.contains(Action::Type::RAISE) && eq > minRaiseEq) {
                 auto [minRaise, maxRaise] = roundState->raiseBounds();
@@ -50,6 +53,7 @@ struct Bot {
             }
             return checkCall(legalActions);
         }
+        if (legalActions.contains(Action::Type::CHECK)) return Action{Action::Type::CHECK};
         return Action{Action::Type::FOLD};
     }
 };
