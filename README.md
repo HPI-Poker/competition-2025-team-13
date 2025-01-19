@@ -1,5 +1,7 @@
-# HPI Showdown 2025
-Official Repository of HPI Shodown - the Poker Bot Competition 2025. Additional information can be found in the [Wiki](https://hpi-poker.notion.site). You can find updated information of this `README` under [Framework & Setup](https://hpi-poker.notion.site/Framework-Setup-173bcdee7a5e806d8a49ca144f7b98a0) and [Troubleshooting](https://hpi-poker.notion.site/Troubleshooting-176bcdee7a5e803eaaa7ff846d740280). 
+# Der Graph von Monte Carlo (HPI Showdown 2025)
+This repository contains the code of the winning submission of HPI Showdown 2025.
+
+Templated from the Official Repository of HPI Showdown - the Poker Bot Competition 2025. Additional information can be found in the [Wiki](https://hpi-poker.notion.site). You can find updated information of this `README` under [Framework & Setup](https://hpi-poker.notion.site/Framework-Setup-173bcdee7a5e806d8a49ca144f7b98a0) and [Troubleshooting](https://hpi-poker.notion.site/Troubleshooting-176bcdee7a5e803eaaa7ff846d740280). 
 
 ## Developing your Poker Bot
 In the bots folder you can find different skeletons for python and C++. Choose your preferred language, copy the corresponding skeleton directory and start implementing your poker bot.
